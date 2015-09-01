@@ -1,4 +1,4 @@
-FROM ruby:1.9.3-onbuild
+FROM ruby:1.9.3
 MAINTAINER pomu0326@gmail.com
 
 RUN git clone git://github.com/peritor/webistrano.git /opt/webistrano
