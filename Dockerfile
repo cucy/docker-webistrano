@@ -1,6 +1,10 @@
 FROM ruby:1.9.3
 MAINTAINER pomu0326@gmail.com
 
+RUN apt-get update \
+ && apt-get install -y mysql-client \
+ && rm -rf /var/lib/apt/lists/*
+ 
 RUN git clone https://github.com/pomu0326/webistrano.git /opt/webistrano
 
 WORKDIR /opt/webistrano

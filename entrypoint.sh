@@ -6,12 +6,32 @@ export MYSQL_DATABASE="${MYSQL_DATABASE:-$MYSQL_ENV_MYSQL_DATABASE}"
 export MYSQL_USER="${MYSQL_USER:-$MYSQL_ENV_MYSQL_USER}"
 export MYSQL_PASSWORD="${MYSQL_PASSWORD:-$MYSQL_ENV_MYSQL_PASSWORD}"
 
+waitDbConnection() {
+  
+  prog="mysqladmin -h${MYSQL_HOST} -u${MYSQL_USER} -p${MYSQL_PASSWORD} status"
+  timeout=60
+
+  printf "Waiting for database server to accect connections"
+  while ! ${prog} > /dev/null 2>&1
+  do
+    timeout=$(expr $timeout - 1)
+    if [[ $timeout -eq 0 ]]; then
+      printf "\n Could not connect to database server. Aborting...\n"
+      exit 1
+    fi
+    printf "."
+    sleep 1
+  done
+
+}
+
 appStart() {
+
+  waitDbConnection
 
   cd /opt/webistrano
 
   cp config/webistrano.yml.sample config/webistrano.yml
-
   cat <<EOS > config/database.yml
 production:
   adapter: mysql
@@ -24,6 +44,7 @@ EOS
 
   bundle exec rake db:migrate RAILS_ENV=production 
   bundle exec thin -e production start
+  
 }
 
 case ${1} in
