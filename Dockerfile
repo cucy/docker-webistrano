@@ -1,7 +1,7 @@
 FROM ruby:1.9.3
 MAINTAINER pomu0326@gmail.com
 
-RUN git clone https://github.com/alpcrimea/webistrano.git /opt/webistrano
+RUN git clone https://github.com/pomu0326/webistrano.git /opt/webistrano
 
 WORKDIR /opt/webistrano
 RUN bundle install --without test
