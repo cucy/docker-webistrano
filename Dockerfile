@@ -4,7 +4,7 @@ MAINTAINER pomu0326@gmail.com
 RUN git clone https://github.com/alpcrimea/webistrano.git /opt/webistrano
 
 WORKDIR /opt/webistrano
-RUN bundle install --without test
+RUN bundle install --path vendor/bundler --without test
 
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
