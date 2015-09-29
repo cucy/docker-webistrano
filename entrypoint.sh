@@ -6,9 +6,13 @@ export MYSQL_DATABASE="${MYSQL_DATABASE:-$MYSQL_ENV_MYSQL_DATABASE}"
 export MYSQL_USER="${MYSQL_USER:-$MYSQL_ENV_MYSQL_USER}"
 export MYSQL_PASSWORD="${MYSQL_PASSWORD:-$MYSQL_ENV_MYSQL_PASSWORD}"
 
-cd /opt/webistrano
-cp -p config/webistrano_config.rb.sample config/webistrano_config.rb
-cat <<EOS > config/database.yml
+appStart() {
+
+  cd /opt/webistrano
+
+  cp config/webistrano.yml.sample config/webistrano.yml
+
+  cat <<EOS > config/database.yml
 production:
   adapter: mysql
   host: <%= ENV['MYSQL_HOST'] %>
@@ -18,7 +22,28 @@ production:
   socket: /tmp/mysql.sock
 EOS
 
-RAILS_ENV=production bundle exec rake db:migrate
-ruby script/server -p 3000 -e production
+  bundle exec rake db:migrate RAILS_ENV=production 
+  bundle exec thin -e production start
+}
+
+case ${1} in
+  app:start)
+    appStart
+    ;;    
+  *)
+    if [[ -x $1 ]]; then
+      $1
+    else
+      prog=$(which $1)
+      if [[ -n ${prog} ]] ; then
+        shift 1
+        $prog $@
+      else
+        appHelp
+      fi
+    fi
+    ;;
+esac
+
 
 exit 0
