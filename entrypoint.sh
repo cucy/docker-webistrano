@@ -25,9 +25,23 @@ waitDbConnection() {
 
 }
 
+appShowKeyPair() {
+  printf "[id_rsa.pub]============================\n"
+  cat ${DATA_DIR}/.ssh/id_rsa.pub
+  printf "========================================\n"
+}
+
 appStart() {
 
   waitDbConnection
+
+  if [ ! -e ${DATA_DIR}/.ssh/id_rsa ]; then
+    mkdir -p ${DATA_DIR}/.ssh
+    chmod 700 ${DATA_DIR}/.ssh
+    ssh-keygen -f ${DATA_DIR}/.ssh/id_rsa -t rsa -N ""
+  fi
+
+  ln -sn ${DATA_DIR}/.ssh ~/.ssh
 
   cd /opt/webistrano
 
@@ -44,13 +58,16 @@ EOS
 
   bundle exec rake db:migrate RAILS_ENV=production 
   bundle exec thin -e production start
-  
+
 }
 
 case ${1} in
   app:start)
     appStart
-    ;;    
+    ;;
+  app:show-keypair)
+    appShowKeyPair
+    ;;
   *)
     if [[ -x $1 ]]; then
       $1
